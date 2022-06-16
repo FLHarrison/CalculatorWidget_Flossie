@@ -30,14 +30,11 @@ private:
 	wxButton* btnBin = nullptr;
 
 	wxTextCtrl* tbDisplay = nullptr;
-
-	/*wxString* btnString;
-	string btnString = ""; */
-
-
 	 
 public: 
 	cMain();
 	~cMain(); 
+
+	void ButtonClicked(wxButton* btn, wxCommandEvent evt);
 };
 
