@@ -1,6 +1,7 @@
 #pragma once
 
 #include "wx/wx.h"
+#include "CalculatorProcessor.h"
 
 class cMain : public wxFrame
 {
@@ -36,5 +37,9 @@ public:
 	~cMain(); 
 
 	void ButtonClicked(wxButton* btn, wxCommandEvent evt);
+	void OperatorClicked(wxCommandEvent& evt);
+	void InputClicked(wxCommandEvent& evt);
+	void BaseClicked(wxCommandEvent& evt);
+	void EqualClicked(wxCommandEvent& evt);
 };
 
