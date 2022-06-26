@@ -97,6 +97,8 @@ cMain::cMain() : wxFrame(nullptr, wxID_ANY, "Buttons", wxPoint(200, 200), wxSize
 }
 cMain::~cMain()
 {
+	CalculatorProcessor* clr = CalculatorProcessor::GetInstance();
+	delete clr;
 }
 
 void cMain::ButtonClicked(wxButton* btn, wxCommandEvent evt)

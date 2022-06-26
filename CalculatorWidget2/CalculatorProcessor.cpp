@@ -74,6 +74,10 @@ wxString CalculatorProcessor::Calculate()
 	Inputs[0].ToInt(input1);
 	Inputs[1].ToInt(input2);
 	wxString equation = ConvertBase(Inputs[0]) + " " + Operator + " " + ConvertBase(Inputs[1]);
+	if ((Operator == '/' || Operator == '%') && Inputs[1] == "0") 
+	{
+		delete input1; delete input2; return equation;
+	}
 	switch (Operator)
 	{
 	case '+': answer = *input1 + *input2; break;
@@ -83,7 +87,7 @@ wxString CalculatorProcessor::Calculate()
 	case '%': answer = *input1 % *input2; break;
 	default: delete input1; delete input2;  return equation;
 	}
-	wxString ans = " = " + ConvertBase("" + answer);
+	wxString ans = " = " + ConvertBase(wxString::FromDouble(answer));
 	equation += ans;
 	Reset();
 	delete input1; delete input2;
