@@ -4,6 +4,20 @@ CalculatorProcessor* CalculatorProcessor::Instance = nullptr;
 
 CalculatorProcessor::CalculatorProcessor()
 {
+	new MathCommand('+', [](int a, int b) { return a + b; });
+	new MathCommand('-', [](int a, int b) { return a - b; });
+	new MathCommand('*', [](int a, int b) { return a * b; });
+	new MathCommand('/', [](int a, int b) { return a / b; });
+	new MathCommand('%', [](int a, int b) { return a % b; });
+}
+
+CalculatorProcessor::~CalculatorProcessor()
+{
+	ICommand::SetCurrentOperator('+'); delete MathCommand::GetCommand();
+	ICommand::SetCurrentOperator('-'); delete MathCommand::GetCommand();
+	ICommand::SetCurrentOperator('*'); delete MathCommand::GetCommand();
+	ICommand::SetCurrentOperator('/'); delete MathCommand::GetCommand();
+	ICommand::SetCurrentOperator('%'); delete MathCommand::GetCommand();
 }
 
 CalculatorProcessor* CalculatorProcessor::GetInstance()
@@ -17,7 +31,7 @@ CalculatorProcessor* CalculatorProcessor::GetInstance()
 
 wxString CalculatorProcessor::ConvertBase(wxString base10)
 {
-	if (Base == 'D')
+	if (ICommand::GetBase() == 'D')
 	{
 		return base10;
 	}
@@ -26,7 +40,7 @@ wxString CalculatorProcessor::ConvertBase(wxString base10)
 	int divisor = 2;
 	int remaindor = 0;
 	wxString result = "";
-	if (Base == 'H')
+	if (ICommand::GetBase() == 'H')
 	{
 		divisor = 16;
 	}
@@ -36,67 +50,53 @@ wxString CalculatorProcessor::ConvertBase(wxString base10)
 		remaindor = *input % divisor;
 		*input = *input / divisor;
 		result = alpha[remaindor] + result;
-	}	
+	}
+	delete input;
 	return result;
 }
 
 wxString CalculatorProcessor::SetBase(char numberBase)
 {
-	Base = numberBase;
-	wxString equation = ConvertBase(Inputs[0]) + " " + Operator + " " + ConvertBase(Inputs[1]);
+	ICommand::SetBase(numberBase);
+	wxString equation = ConvertBase(ICommand::GetInput(0)) + " " + ICommand::GetCurrentOperator() + " " + ConvertBase(ICommand::GetInput(1));
 	return equation;
 }
 
 wxString CalculatorProcessor::AppendInput(char input)
 {
-	if (Inputs[SelectedInput] == "0") 
+	if (ICommand::GetInput(SelectedInput) == "0") 
 	{
-		Inputs[SelectedInput] = "";
+		ICommand::SetInput("", SelectedInput);
 	}
-	Inputs[SelectedInput] += input;
-	wxString equation = ConvertBase( Inputs[0]) + " " + Operator + " " + ConvertBase( Inputs[1]);
+	ICommand::SetInput(ICommand::GetInput(SelectedInput) + input, SelectedInput);
+	wxString equation = ConvertBase(ICommand::GetInput(0)) + " " + ICommand::GetCurrentOperator() + " " + ConvertBase(ICommand::GetInput(1));
 	return equation;
 }
 
 wxString CalculatorProcessor::SetOperator(char opr)
 {
-	Operator = opr;
 	SelectedInput = 1;
-	wxString equation = ConvertBase( Inputs[0]) + " " + Operator + " " + ConvertBase( Inputs[1]);
+	ICommand::SetCurrentOperator(opr);
+	wxString equation = ConvertBase(ICommand::GetInput(0)) + " " + ICommand::GetCurrentOperator() + " " + ConvertBase(ICommand::GetInput(1));
 	return equation;
 }
 
 wxString CalculatorProcessor::Calculate()
 {
-	int* input1 = new int(0);
-	int* input2 = new int(0);
-	int answer = 0;
-	Inputs[0].ToInt(input1);
-	Inputs[1].ToInt(input2);
-	wxString equation = ConvertBase(Inputs[0]) + " " + Operator + " " + ConvertBase(Inputs[1]);
-	if ((Operator == '/' || Operator == '%') && Inputs[1] == "0") 
-	{
-		delete input1; delete input2; return equation;
+	wxString equation = ConvertBase(ICommand::GetInput(0)) + " " + ICommand::GetCurrentOperator() + " " + ConvertBase(ICommand::GetInput(1));
+	char op = ICommand::GetCurrentOperator();
+	if ((op == '/' || op == '%') && ICommand::GetInput(1) == "0") {
+		return equation;
 	}
-	switch (Operator)
-	{
-	case '+': answer = *input1 + *input2; break;
-	case '-': answer = *input1 - *input2; break;
-	case '*': answer = *input1 * *input2; break;
-	case '/': answer = *input1 / *input2; break;
-	case '%': answer = *input1 % *input2; break;
-	default: delete input1; delete input2;  return equation;
-	}
-	wxString ans = " = " + ConvertBase(wxString::FromDouble(answer));
+	wxString ans = " = " + ConvertBase(MathCommand::GetCommand()->Execute());
 	equation += ans;
 	Reset();
-	delete input1; delete input2;
 	return equation;
 }
 
 void CalculatorProcessor::Reset()
 {
 	SelectedInput = 0;
-	Inputs[0] = "0";
-	Inputs[1] = "0";
+	ICommand::SetInput("0", 0);
+	ICommand::SetInput("0", 1);
 }

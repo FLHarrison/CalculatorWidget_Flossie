@@ -1,18 +1,19 @@
 #pragma once
 #include "wx/wx.h"
+#include "MathCommand.h"
+
 class CalculatorProcessor
 {
 private: 
 	static CalculatorProcessor* Instance;
 
-	char Base = 'D';
-	char Operator = ' ';
 	int SelectedInput = 0;
-	wxString Inputs[2] = { "0", "0" };
+	
 
 	CalculatorProcessor();
 
 public:
+	~CalculatorProcessor();
 	static CalculatorProcessor* GetInstance();
 
 	wxString ConvertBase(wxString base10);
